@@ -1,4 +1,14 @@
 SimplexMethod::Application.routes.draw do
+
+  get "simplex_method/index"
+
+  get "simplex_method/index"
+  post "timezone/get_messages"
+
+  match 'home' => 'simplex_method#index'
+  root :to => 'simplex_method#index'
+
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
