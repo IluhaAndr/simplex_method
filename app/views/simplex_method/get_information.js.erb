@@ -1,9 +1,0 @@
-$("#information").attr('visibility','hidden').empty().remove();
-<% if @url && @content && @head %>
-var $form = $("#form");
-$form.append("<div id=information>" +
-        "<h3 id=information_head><%= @head%></h3>"+
-        "<p id=information_content><%= @content%></p>" +
-        "<p id=information_url><a href=<%= @url%> target=_blank>Wiki</a></p>" +
-        "</div>");
-<% end %>

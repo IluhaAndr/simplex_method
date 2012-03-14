@@ -1,12 +1,25 @@
-= form_tag '',:class => "well", :id => "form"  do
+= form_tag "simplex_method/get_messages",:class => "well", :id => "form", :method => "post", :remote => true  do
   .control-group
-    %h3= translate 'init_state'
+    %h3 Целевая функция
     .controls
-      = text_field_tag :user_location,'', :required => true, :id => 'user_location', :class => 'input-large search-query'
-    = render "timezone", :location => "user"
+      = text_field_tag :user_location,'', :required => true, :id => 'user_location', :class => 'input-large search-query', :value => "6,3,-2,-1,-14", :name => "func"
+  .control-group
+    %h3 Матрица
+    .controls
+      = text_field_tag :required_location,'', :required => true, :id => 'required_location', :class => 'input-large search-query', :value => "0,0,0,1,2 | 3,0,2,0,-4 | 0,-1,3,0,0", :name => "matrix"
 
   .control-group
-    %h3= translate 'final_state'
+    %h3 Вектор b
     .controls
-      = text_field_tag :required_location,'', :required => true, :id => 'required_location', :class => 'input-large search-query'
-    = render "timezone", :location => "required"
+      = text_field_tag :required_location,'', :required => true, :id => 'required_location', :class => 'input-large search-query', :value => "-4,25,6", :name => "b"
+
+  .control-group
+    %h3 Граничные условия
+    .controls
+      = text_field_tag :required_location,'', :required => true, :id => 'required_location', :class => 'input-large search-query', :value => "1,4 | -1,3 | -2,2 | 1,4 | -3,1", :name => "borders"
+
+  .control-group
+    %h3 Начальный вектор x (не обязательно)
+    .controls
+      = text_field_tag :required_location,'',  :id => 'required_location', :class => 'input-large search-query', :value => "4,-1,2,1,-3", :name => "x"
+  = submit_tag  "Запустить симплекс-метод!", :class => "btn btn-danger"

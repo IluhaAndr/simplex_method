@@ -1,0 +1,22 @@
+*{
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+@mixin rounded($radius: 10px) {
+  border-radius: $radius;
+  -moz-border-radius: $radius;
+  -webkit-border-radius: $radius;
+}
+
+body{
+  background: url("../uuiaxft.png") repeat;
+}
+
+.container{
+  margin-top: -30px;
+  padding: 10px;
+  @include rounded;
+  border: 4px solid #9d261d;
+  background: url("../q29puqa.png") repeat;
+}

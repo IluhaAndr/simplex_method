@@ -1,9 +1,12 @@
+# encoding: utf-8
 require 'matrix.rb'
 require 'mathn.rb'
+
 
 module SimplexMethodHelper
 
   def solve func, matrix, b, borders, x = nil
+    @messages = []
     func, matrix, b,x = *init_input(func, matrix, b, borders, x)
     x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders)
     simplex_method func, matrix, b, x, i_base, borders
@@ -12,15 +15,16 @@ module SimplexMethodHelper
   private
 
   def simplex_method func, matrix, b, x, i_base, borders
-    p "borders #{borders}"
+    @messages.push "////////////////ВТОРАЯ СТАДИЯ/////////////////////"
+    @messages.push "Граничные условия #{borders}"
     n = 0
     success = false
     until success
-      p "////////////////#{n}_ITERATION_SECOND_STAGE/////////////////////"
-      p "x #{x}"
-      p "i_base #{i_base}"
+      @messages.push "////////////////#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ/////////////////////"
+      @messages.push "Текущее х #{x}"
+      @messages.push "Базис #{i_base}"
       x, i_base,success = *iterate(x, i_base, matrix, func, borders)
-      p "#{x} #{i_base} ok!!!" if  success
+      @messages.push "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
       n+=1
     end
     [x, i_base]
@@ -65,14 +69,15 @@ module SimplexMethodHelper
     #p x_first, matrix_first, func_first
     pseudo = (x.size...x_first.size).to_a
     i_base = pseudo
-    p "borders_first #{borders_first}"
+    @messages.push "////////////////ПЕРВАЯ СТАДИЯ/////////////////////"
+    @messages.push "Граничные условия #{borders_first}"
     n = 0
     until pseudo_null? x_first, pseudo
-      p "////////////////#{n}_ITERATION_FIRST_STAGE/////////////////////"
-      p "x #{x_first}"
-      p "i_base #{i_base}"
+      @messages.push "////////////////#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ/////////////////////"
+      @messages.push "Текущее значение х #{x_first}"
+      @messages.push "Базис #{i_base}"
       x_first, i_base,success = *iterate(x_first, i_base, matrix_first, func_first, borders_first)
-      p "#{x_first} #{i_base} ok!!!" if  success
+      @messages.push "Вектор х #{x_first} с базисом #{i_base} оптимален!" if  success
       n+=1
     end
     [Vector.elements(x_first[0...x.size]), i_base]
@@ -84,26 +89,26 @@ module SimplexMethodHelper
 
   def iterate x, i_base, matrix, func, borders
     matrix_base = matrix_base i_base, matrix
-    p "matrix_base #{matrix_base}"
+    @messages.push "Базисная матрица #{matrix_base}"
     func_base = func_base i_base, func
-    p "func_base #{func_base}"
+    @messages.push "Базисный целевой вектор #{func_base}"
     u = matrix_base.transpose.inverse*func_base
-    p "u #{u}"
+    @messages.push "Вектор u #{u}"
     i_not_base = (0...func.size).to_a-i_base
-    p "i_not_base #{i_not_base}"
+    @messages.push "Небазисные индексы #{i_not_base}"
     deltas = i_not_base.map{|i| [delta(i, func, matrix, u),i]}
-    p "deltas #{deltas}"
+    @messages.push "Значения дельта #{deltas}"
     delta_i0 = choose_i0 deltas, borders, x
     return [x,i_base,true] if delta_i0.nil?
-    p "delta_i0 #{delta_i0}"
+    @messages.push "Дельта i0 #{delta_i0}"
     l = direction delta_i0, i_not_base, i_base, matrix, matrix_base
-    p "l #{l}"
+    @messages.push "Вектор направления l #{l}"
     tetta0_index = step borders, l, delta_i0[1], x, i_base
-    p "tetta0_index #{tetta0_index}"
+    @messages.push "Шаг Тетта0 #{tetta0_index}"
     x_new = x+tetta0_index[0]*Vector.elements(l)
-    p "x_new #{x_new}"
+    @messages.push "Новый вектор х #{x_new}"
     i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
-    p "i_base_new #{i_base_new}"
+    @messages.push "Новый базис #{i_base_new}"
     [x_new, i_base_new, false]
   end
 
@@ -127,13 +132,13 @@ module SimplexMethodHelper
       end
     end
     tetta[i0] =  tetta_i0
-    p "tetta #{tetta}"
+  @messages.push "Значения тетта #{tetta.select{|i| i[0]!= fixnum_max}}"
     tetta.min{|a,b| a[0] <=> b[0]}
   end
 
   def choose_i0 deltas, borders, x
     not_crit_opt = deltas.to_a.select{|delta| delta[0]>0 && x[delta[1]]==borders[delta[1]][0] || delta[0]<0 && x[delta[1]]==borders[delta[1]][1]}
-    p "not_crit_opt #{not_crit_opt}"
+    @messages.push "Не выполняется критерий оптимальности для  #{not_crit_opt}"
     not_crit_opt.max{|a,b| a[0].abs<=>b[0].abs}
     #not_crit_opt[0]
   end

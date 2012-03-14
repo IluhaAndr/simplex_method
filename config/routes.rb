@@ -3,7 +3,7 @@ SimplexMethod::Application.routes.draw do
   get "simplex_method/index"
 
   get "simplex_method/index"
-  post "timezone/get_messages"
+  post "simplex_method/get_messages"
 
   match 'home' => 'simplex_method#index'
   root :to => 'simplex_method#index'

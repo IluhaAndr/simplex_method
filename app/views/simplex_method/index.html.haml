@@ -4,13 +4,12 @@
 .container
   #header_panel
     %div
-      %h1= Симплекс метод
+      %h1= @title
   .row
     #left_panel.pull-left.span4
       =render 'form'
     #center_panel.span8
-      #map_canvas
-    #footer_panel
-      %address
-        %a.pull-left{:href => "mailto:aimilandr@gmail.com"}= translate 'feedback'
+  #footer_panel
+    %address
+      %a.pull-left{:href => "mailto:aimilandr@gmail.com"} Обратная связь
 
