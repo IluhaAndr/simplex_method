@@ -1,0 +1,12 @@
+= form_tag '',:class => "well", :id => "form"  do
+  .control-group
+    %h3= translate 'init_state'
+    .controls
+      = text_field_tag :user_location,'', :required => true, :id => 'user_location', :class => 'input-large search-query'
+    = render "timezone", :location => "user"
+
+  .control-group
+    %h3= translate 'final_state'
+    .controls
+      = text_field_tag :required_location,'', :required => true, :id => 'required_location', :class => 'input-large search-query'
+    = render "timezone", :location => "required"
