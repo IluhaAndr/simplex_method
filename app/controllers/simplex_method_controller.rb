@@ -13,7 +13,7 @@ class SimplexMethodController < ApplicationController
     matrix = params[:matrix].split(/\s*\|\s*/).map{|i| i.split(/[\,\+\s]+/).map{|i| i.to_i}}
     b = params[:b].split(/[\,\+\s]+/).map{|i| i.to_i}
     borders = params[:borders].split(/\s*\|\s*/).map{|i| i.split(/[\,\+\s]+/).map{|i| i.to_i}}
-    x = params[:x].split(/[\,\+\s]+/).map{|i| i.to_i} unless params[:x].nil?
+    x = params[:x].split(/[\,\+\s]+/).map{|i| i.to_i} unless params[:x]== ""
     solve func, matrix, b, borders,x
     respond_to do |format|
       format.js
