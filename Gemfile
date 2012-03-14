@@ -27,7 +27,7 @@ gem 'execjs'
 gem 'therubyracer'
 gem "heroku"
 gem 'haml'
-gem 'hassle'
+#gem 'hassle'
 gem 'twitter-bootstrap-rails', :git => 'http://github.com/seyhunak/twitter-bootstrap-rails.git'
 
 group :production do
