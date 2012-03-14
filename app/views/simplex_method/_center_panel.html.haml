@@ -1,0 +1,15 @@
+#center_panel.span8
+  %ul#tabs.nav.nav-tabs
+    %li.active
+      %a{ :href => "#straight", "data-toggle" => "tab"} Прямой метод
+    %li
+      %a{ :href => "#make_dual", "data-toggle" => "tab"} Двойственная задача из прямой
+    %li
+      %a{ :href => "#dual", "data-toggle" => "tab"} Двойственная задача
+  .tab-content
+    #straight.tab-pane.fade.in.active
+      %p Введите данные справа
+    #make_dual.tab-pane.fade
+      %p Здесь должна быть ваша реклама
+    #dual.tab-pane.fade
+      %p И здесь

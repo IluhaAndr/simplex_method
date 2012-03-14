@@ -1,2 +1,5 @@
-$("#steps").remove();
-$("#center_panel").append("<%=  j(render "table", :messages => @messages) %>");
+$("#tabs a:first").tab('show');
+$("#straight, #make_dual, #dual").children().remove();
+<% @messages.keys.each do |key| %>
+    $("#<%= key %>>").append("<%=  j(render "table", :messages => @messages[key]) %>");
+<% end %>
