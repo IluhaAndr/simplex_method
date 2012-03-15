@@ -61,9 +61,9 @@ module SimplexMethodHelper
     n = 0
     success = false
     until success
-      add_messages :straight, "#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ", "Текущее х #{x}", "Базис #{i_base}"
+      add_messages :straight, "#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ", "Текущее х #{x.to_a}", "Базис #{i_base}"
       x, i_base,success = *iterate(x, i_base, matrix, func, borders)
-      add_messages :straight, "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
+      add_messages :straight, "Вектор х #{x.to_a} с базисом #{i_base} оптимален!" if  success
       n += 1
     end
     [x, i_base]
@@ -135,7 +135,11 @@ module SimplexMethodHelper
     add_messages :straight, "Дельта i0 #{delta_i0}", "Вектор направления L #{l}"
                  tetta0_index = step borders, l, delta_i0[1], x, i_base
     x_new = x+tetta0_index[0]*Vector.elements(l)
-    i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
+    if tetta0_index[1] != delta_i0[1]
+      i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
+    else
+      i_base_new = i_base
+    end
     add_messages :straight, "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new.to_a}", "Новый базис #{i_base_new}"
     [x_new, i_base_new, false]
   end
