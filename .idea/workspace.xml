@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5820ba6a-0414-4051-ad1b-7a8a08790950" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/assets/stylesheets/simplex_method/index.css.scss" afterPath="$PROJECT_DIR$/app/assets/stylesheets/simplex_method/index.css.scss" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/helpers/simplex_method_helper.rb" afterPath="$PROJECT_DIR$/app/helpers/simplex_method_helper.rb" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml" afterPath="$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb" afterPath="$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb" />
     </list>
     <ignored path="simplex_method.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -50,7 +49,7 @@
       <file leaf-file-name="_center_panel.html.haml" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="14" column="29" selection-start="584" selection-end="584" vertical-scroll-proportion="0.0">
+            <state line="10" column="70" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -77,7 +76,7 @@
       <file leaf-file-name="get_messages.js.erb" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="3" column="16" selection-start="138" selection-end="138" vertical-scroll-proportion="0.0">
+            <state line="3" column="23" selection-start="145" selection-end="145" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -86,7 +85,16 @@
       <file leaf-file-name="simplex_method_helper.rb" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/helpers/simplex_method_helper.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="44" column="52" selection-start="1128" selection-end="1128" vertical-scroll-proportion="-0.35454544">
+            <state line="31" column="0" selection-start="683" selection-end="683" vertical-scroll-proportion="0.53149605">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="simplex_method_controller.rb" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/controllers/simplex_method_controller.rb">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="76" selection-start="551" selection-end="551" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -116,10 +124,10 @@
         <option value="$PROJECT_DIR$/app/controllers/simplex_method_controller.rb" />
         <option value="$PROJECT_DIR$/app/assets/javascripts/simplex_method/index.js" />
         <option value="$PROJECT_DIR$/app/views/simplex_method/_table.html.haml" />
-        <option value="$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb" />
         <option value="$PROJECT_DIR$/app/assets/stylesheets/simplex_method/index.css.scss" />
         <option value="$PROJECT_DIR$/app/views/simplex_method/index.html.haml" />
         <option value="$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml" />
+        <option value="$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb" />
         <option value="$PROJECT_DIR$/app/helpers/simplex_method_helper.rb" />
       </list>
     </option>
@@ -727,7 +735,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1366" height="733" extended-state="1" />
+    <frame x="0" y="0" width="1366" height="733" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Data Sources" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -828,11 +836,6 @@
         <state line="7" column="13" selection-start="154" selection-end="154" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/controllers/simplex_method_controller.rb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="76" selection-start="551" selection-end="551" vertical-scroll-proportion="0.38527396" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/assets/javascripts/application.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
@@ -843,25 +846,9 @@
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/assets/javascripts/simplex_method/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="29" selection-start="183" selection-end="183" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#0#152#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/views/simplex_method/_table.html.haml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="6" selection-start="6" selection-end="6" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="16" selection-start="138" selection-end="138" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -887,16 +874,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/assets/javascripts/simplex_method/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="8" column="29" selection-start="183" selection-end="183" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="e#0#152#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="29" selection-start="584" selection-end="584" vertical-scroll-proportion="0.0">
+        <state line="10" column="70" selection-start="426" selection-end="426" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/controllers/simplex_method_controller.rb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="76" selection-start="551" selection-end="551" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="23" selection-start="145" selection-end="145" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/helpers/simplex_method_helper.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="44" column="52" selection-start="1128" selection-end="1128" vertical-scroll-proportion="-0.35454544">
+        <state line="31" column="0" selection-start="683" selection-end="683" vertical-scroll-proportion="0.53149605">
           <folding />
         </state>
       </provider>

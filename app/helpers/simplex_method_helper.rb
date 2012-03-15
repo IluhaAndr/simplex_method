@@ -6,6 +6,7 @@ require 'mathn.rb'
 module SimplexMethodHelper
 
   def solve func, matrix, b, borders, x = nil
+    init_logger
     solve_straight func, matrix, b, borders, x = nil
   end
 
@@ -26,21 +27,18 @@ module SimplexMethodHelper
   private
 
   def init_logger
-    @messages = {:straight => [], :make_dual => [], :dual => []}
+    @messages = {} #:straight => [], :make_dual => [], :dual => []
   end
 
   def add_messages method_name, *messages
-    if @messages[method_name]
-      @messages[method_name] << messages
-    else
-      @messages[method_name] = []
-      @messages[method_name] << messages
-    end
+    @messages[method_name] = [] unless @messages[method_name]
+    messages.each{|message|@messages[method_name] << message}
   end
 
   def simplex_method func, matrix, b, x, i_base, borders
     add_messages :straight, "////////////////ВТОРАЯ СТАДИЯ/////////////////////", "Граничные условия #{borders}"
     n = 0
+    success = false
     until success
       add_messages :straight, "////////////////#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ/////////////////////", "Текущее х #{x}", "Базис #{i_base}"
       x, i_base,success = *iterate(x, i_base, matrix, func, borders)
