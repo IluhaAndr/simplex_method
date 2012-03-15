@@ -10,10 +10,19 @@ $red: #9d261d;
   -webkit-border-radius: $radius;
 }
 
-table  td{
-  width: 100%;
-  font-size: 16pt;
-  margin-top: 5px;
+#center_panel{
+  table  td{
+    width: 100%;
+    font-size: 16pt;
+    margin-top: 5px;
+  }
+  ul{
+    width: 100%;
+  }
+
+  .alert{
+    text-align: center;
+  }
 }
 
 #form{

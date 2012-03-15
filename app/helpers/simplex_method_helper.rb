@@ -6,26 +6,46 @@ require 'mathn.rb'
 module SimplexMethodHelper
 
   def solve func, matrix, b, borders, x = nil
-    @messages = []
+    solve_straight func, matrix, b, borders, x = nil
+  end
+
+  def solve_straight func, matrix, b, borders, x = nil
     func, matrix, b,x = *init_input(func, matrix, b, borders, x)
     x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders)
     simplex_method func, matrix, b, x, i_base, borders
   end
 
+  def make_dual func, matrix, b, borders, x = nil
+
+  end
+
+  def solve_dual func, matrix, b, borders, x = nil
+
+  end
+
   private
 
+  def init_logger
+    @messages = {:straight => [], :make_dual => [], :dual => []}
+  end
+
+  def add_messages method_name, *messages
+    if @messages[method_name]
+      @messages[method_name] << messages
+    else
+      @messages[method_name] = []
+      @messages[method_name] << messages
+    end
+  end
+
   def simplex_method func, matrix, b, x, i_base, borders
-    @messages << "////////////////ВТОРАЯ СТАДИЯ/////////////////////"
-    @messages << "Граничные условия #{borders}"
+    add_messages :straight, "////////////////ВТОРАЯ СТАДИЯ/////////////////////", "Граничные условия #{borders}"
     n = 0
-    success = false
     until success
-      @messages << "////////////////#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ/////////////////////"
-      @messages << "Текущее х #{x}"
-      @messages << "Базис #{i_base}"
+      add_messages :straight, "////////////////#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ/////////////////////", "Текущее х #{x}", "Базис #{i_base}"
       x, i_base,success = *iterate(x, i_base, matrix, func, borders)
-      @messages << "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
-      n+=1
+      add_messages :straight, "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
+      n += 1
     end
     [x, i_base]
   end
@@ -66,18 +86,14 @@ module SimplexMethodHelper
 
   def first_stage_simplex_method func, matrix, b, x, borders
     x_first, matrix_first, func_first, borders_first = *first_stage_init_input(func, matrix, b, x, borders)
-    #p x_first, matrix_first, func_first
     pseudo = (x.size...x_first.size).to_a
     i_base = pseudo
-    @messages << "////////////////ПЕРВАЯ СТАДИЯ/////////////////////"
-    @messages << "Граничные условия #{borders_first}"
+    add_messages :straight, "////////////////ПЕРВАЯ СТАДИЯ/////////////////////", "Граничные условия #{borders_first}"
     n = 0
     until pseudo_null? x_first, pseudo
-      @messages << "////////////////#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ/////////////////////"
-      @messages << "Текущее значение х #{x_first}"
-      @messages << "Базис #{i_base}"
+      add_messages :straight, "////////////////#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ/////////////////////", "Текущее значение х #{x_first}", "Базис #{i_base}"
       x_first, i_base,success = *iterate(x_first, i_base, matrix_first, func_first, borders_first)
-      @messages << "Вектор х #{x_first} с базисом #{i_base} оптимален!" if  success
+      add_messages :straight, "Вектор х #{x_first} с базисом #{i_base} оптимален!" if  success
       n+=1
     end
     [Vector.elements(x_first[0...x.size]), i_base]
@@ -89,26 +105,17 @@ module SimplexMethodHelper
 
   def iterate x, i_base, matrix, func, borders
     matrix_base = matrix_base i_base, matrix
-    @messages << "Базисная матрица #{matrix_base}"
     func_base = func_base i_base, func
-    @messages << "Базисный целевой вектор #{func_base}"
     u = matrix_base.transpose.inverse*func_base
-    @messages << "Вектор u #{u}"
     i_not_base = (0...func.size).to_a-i_base
-    @messages << "Небазисные индексы #{i_not_base}"
     deltas = i_not_base.map{|i| [delta(i, func, matrix, u),i]}
-    @messages << "Значения дельта #{deltas}"
     delta_i0 = choose_i0 deltas, borders, x
     return [x,i_base,true] if delta_i0.nil?
-    @messages << "Дельта i0 #{delta_i0}"
     l = direction delta_i0, i_not_base, i_base, matrix, matrix_base
-    @messages << "Вектор направления l #{l}"
     tetta0_index = step borders, l, delta_i0[1], x, i_base
-    @messages << "Шаг Тетта0 #{tetta0_index}"
     x_new = x+tetta0_index[0]*Vector.elements(l)
-    @messages << "Новый вектор х #{x_new}"
     i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
-    @messages << "Новый базис #{i_base_new}"
+    add_messages :straight, "Базисная матрица #{matrix_base}", "Базисный целевой вектор #{func_base}", "Вектор u #{u}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}", "Дельта i0 #{delta_i0}", "Вектор направления l #{l}", "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new}", "Новый базис #{i_base_new}"
     [x_new, i_base_new, false]
   end
 
@@ -132,13 +139,13 @@ module SimplexMethodHelper
       end
     end
     tetta[i0] =  tetta_i0
-  @messages << "Значения тетта #{tetta.select{|i| i[0]!= fixnum_max}}"
+    add_messages :straight, "Значения тетта #{tetta.select{|i| i[0]!= fixnum_max}}"
     tetta.min{|a,b| a[0] <=> b[0]}
   end
 
   def choose_i0 deltas, borders, x
     not_crit_opt = deltas.to_a.select{|delta| delta[0]>0 && x[delta[1]]==borders[delta[1]][0] || delta[0]<0 && x[delta[1]]==borders[delta[1]][1]}
-    @messages << "Не выполняется критерий оптимальности для  #{not_crit_opt}"
+    add_messages :straight, "Не выполняется критерий оптимальности для  #{not_crit_opt}"
     not_crit_opt.max{|a,b| a[0].abs<=>b[0].abs}
     #not_crit_opt[0]
   end
