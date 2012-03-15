@@ -8,6 +8,7 @@ module SimplexMethodHelper
   def solve func, matrix, b, borders, x = nil
     init_logger
     solve_straight func, matrix, b, borders, x = nil
+    make_dual func, matrix, b, borders
   end
 
   def solve_straight func, matrix, b, borders, x = nil
@@ -16,8 +17,16 @@ module SimplexMethodHelper
     simplex_method func, matrix, b, x, i_base, borders
   end
 
-  def make_dual func, matrix, b, borders, x = nil
-
+  def make_dual func, matrix, b, borders
+    b_dual = func
+    func_dual = b
+    y = vector_string "y", func_dual.size
+    w = vector_string "w", b_dual.size
+    v = vector_string "v", b_dual.size
+    border_low = borders.map{|i| i[0]}
+    border_high = borders.map{|i| i[1]}
+    matrix_dual = Matrix.rows(matrix).transpose
+    add_messages :make_dual, "#{func_dual} * #{y}' + #{border_high} * #{w}' - #{border_low} * #{v.to_a}' --> min", "#{matrix_dual.to_a} * #{y}' + #{w}'' - #{v}' = #{b_dual}'", "w, v >=0"
   end
 
   def solve_dual func, matrix, b, borders, x = nil
@@ -25,6 +34,10 @@ module SimplexMethodHelper
   end
 
   private
+
+  def vector_string sign, size
+    (0...size).map{|i| "#{sign}#{i}"}
+  end
 
   def init_logger
     @messages = {} #:straight => [], :make_dual => [], :dual => []
@@ -36,11 +49,11 @@ module SimplexMethodHelper
   end
 
   def simplex_method func, matrix, b, x, i_base, borders
-    add_messages :straight, "////////////////ВТОРАЯ СТАДИЯ/////////////////////", "Граничные условия #{borders}"
+    add_messages :straight, "ВТОРАЯ СТАДИЯ/", "Граничные условия #{borders}"
     n = 0
     success = false
     until success
-      add_messages :straight, "////////////////#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ/////////////////////", "Текущее х #{x}", "Базис #{i_base}"
+      add_messages :straight, "#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ", "Текущее х #{x}", "Базис #{i_base}"
       x, i_base,success = *iterate(x, i_base, matrix, func, borders)
       add_messages :straight, "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
       n += 1
@@ -86,12 +99,12 @@ module SimplexMethodHelper
     x_first, matrix_first, func_first, borders_first = *first_stage_init_input(func, matrix, b, x, borders)
     pseudo = (x.size...x_first.size).to_a
     i_base = pseudo
-    add_messages :straight, "////////////////ПЕРВАЯ СТАДИЯ/////////////////////", "Граничные условия #{borders_first}"
+    add_messages :straight, "ПЕРВАЯ СТАДИЯ", "Граничные условия #{borders_first}"
     n = 0
     until pseudo_null? x_first, pseudo
-      add_messages :straight, "////////////////#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ/////////////////////", "Текущее значение х #{x_first}", "Базис #{i_base}"
+      add_messages :straight, "#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ", "Текущее значение х #{x_first.to_a}", "Базис #{i_base}"
       x_first, i_base,success = *iterate(x_first, i_base, matrix_first, func_first, borders_first)
-      add_messages :straight, "Вектор х #{x_first} с базисом #{i_base} оптимален!" if  success
+      add_messages :straight, "Вектор х #{x_first.to_a} с базисом #{i_base} оптимален!" if  success
       n+=1
     end
     [Vector.elements(x_first[0...x.size]), i_base]
@@ -107,13 +120,15 @@ module SimplexMethodHelper
     u = matrix_base.transpose.inverse*func_base
     i_not_base = (0...func.size).to_a-i_base
     deltas = i_not_base.map{|i| [delta(i, func, matrix, u),i]}
+    add_messages :straight, "Базисная матрица #{matrix_base}", "Базисный целевой вектор #{func_base}", "Вектор u #{u}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}"
     delta_i0 = choose_i0 deltas, borders, x
     return [x,i_base,true] if delta_i0.nil?
     l = direction delta_i0, i_not_base, i_base, matrix, matrix_base
-    tetta0_index = step borders, l, delta_i0[1], x, i_base
+    add_messages :straight, "Дельта i0 #{delta_i0}", "Вектор направления L #{l}"
+                 tetta0_index = step borders, l, delta_i0[1], x, i_base
     x_new = x+tetta0_index[0]*Vector.elements(l)
     i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
-    add_messages :straight, "Базисная матрица #{matrix_base}", "Базисный целевой вектор #{func_base}", "Вектор u #{u}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}", "Дельта i0 #{delta_i0}", "Вектор направления l #{l}", "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new}", "Новый базис #{i_base_new}"
+    add_messages :straight, "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new}", "Новый базис #{i_base_new}"
     [x_new, i_base_new, false]
   end
 

@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5820ba6a-0414-4051-ad1b-7a8a08790950" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/helpers/simplex_method_helper.rb" afterPath="$PROJECT_DIR$/app/helpers/simplex_method_helper.rb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml" afterPath="$PROJECT_DIR$/app/views/simplex_method/_center_panel.html.haml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb" afterPath="$PROJECT_DIR$/app/views/simplex_method/get_messages.js.erb" />
     </list>
     <ignored path="simplex_method.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -85,7 +83,7 @@
       <file leaf-file-name="simplex_method_helper.rb" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/helpers/simplex_method_helper.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="31" column="0" selection-start="683" selection-end="683" vertical-scroll-proportion="0.53149605">
+            <state line="126" column="74" selection-start="4210" selection-end="4210" vertical-scroll-proportion="0.32086614">
               <folding />
             </state>
           </provider>
@@ -906,7 +904,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/helpers/simplex_method_helper.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="31" column="0" selection-start="683" selection-end="683" vertical-scroll-proportion="0.53149605">
+        <state line="126" column="74" selection-start="4210" selection-end="4210" vertical-scroll-proportion="0.32086614">
           <folding />
         </state>
       </provider>
