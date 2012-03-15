@@ -83,7 +83,7 @@
       <file leaf-file-name="simplex_method_helper.rb" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/helpers/simplex_method_helper.rb">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="126" column="74" selection-start="4210" selection-end="4210" vertical-scroll-proportion="0.32086614">
+            <state line="130" column="86" selection-start="4500" selection-end="4500" vertical-scroll-proportion="0.5610236">
               <folding />
             </state>
           </provider>
@@ -904,7 +904,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/helpers/simplex_method_helper.rb">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="126" column="74" selection-start="4210" selection-end="4210" vertical-scroll-proportion="0.32086614">
+        <state line="130" column="86" selection-start="4500" selection-end="4500" vertical-scroll-proportion="0.5610236">
           <folding />
         </state>
       </provider>

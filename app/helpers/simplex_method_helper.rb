@@ -7,7 +7,7 @@ module SimplexMethodHelper
 
   def solve func, matrix, b, borders, x = nil
     init_logger
-    solve_straight func, matrix, b, borders, x = nil
+    solve_straight func, matrix, b, borders, x
     make_dual func, matrix, b, borders
   end
 
@@ -120,7 +120,7 @@ module SimplexMethodHelper
     u = matrix_base.transpose.inverse*func_base
     i_not_base = (0...func.size).to_a-i_base
     deltas = i_not_base.map{|i| [delta(i, func, matrix, u),i]}
-    add_messages :straight, "Базисная матрица #{matrix_base}", "Базисный целевой вектор #{func_base}", "Вектор u #{u}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}"
+    add_messages :straight, "Базисная матрица #{matrix_base.to_a}", "Базисный целевой вектор #{func_base.to_a}", "Вектор u #{u.to_a}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}"
     delta_i0 = choose_i0 deltas, borders, x
     return [x,i_base,true] if delta_i0.nil?
     l = direction delta_i0, i_not_base, i_base, matrix, matrix_base
@@ -128,7 +128,7 @@ module SimplexMethodHelper
                  tetta0_index = step borders, l, delta_i0[1], x, i_base
     x_new = x+tetta0_index[0]*Vector.elements(l)
     i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
-    add_messages :straight, "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new}", "Новый базис #{i_base_new}"
+    add_messages :straight, "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new.to_a}", "Новый базис #{i_base_new}"
     [x_new, i_base_new, false]
   end
 
