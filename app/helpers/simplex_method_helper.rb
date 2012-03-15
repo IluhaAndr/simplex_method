@@ -14,7 +14,7 @@ module SimplexMethodHelper
   def solve_straight func, matrix, b, borders, x = nil
     func, matrix, b,x = *init_input(func, matrix, b, borders, x)
     x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders)
-    simplex_method func, matrix, b, x, i_base, borders
+    straight_simplex_method func, matrix, b, x, i_base, borders
   end
 
   def make_dual func, matrix, b, borders
@@ -29,8 +29,11 @@ module SimplexMethodHelper
     add_messages :make_dual, "#{func_dual} * #{y}' + #{border_high} * #{w}' - #{border_low} * #{v.to_a}' --> min", "#{matrix_dual.to_a} * #{y}' + #{w}'' - #{v}' = #{b_dual}'", "w, v >=0"
   end
 
+  #todo
   def solve_dual func, matrix, b, borders, x = nil
-
+    func, matrix, b,x = *init_input(func, matrix, b, borders, x)
+    x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders)
+    dual_simplex_method  func, matrix, b, x, i_base, borders
   end
 
   private
@@ -48,8 +51,13 @@ module SimplexMethodHelper
     messages.each{|message|@messages[method_name] << message}
   end
 
-  def simplex_method func, matrix, b, x, i_base, borders
-    add_messages :straight, "ВТОРАЯ СТАДИЯ/", "Граничные условия #{borders}"
+  #todo
+  def dual_simplex_method  func, matrix, b, x, i_base, borders
+
+  end
+
+  def straight_simplex_method func, matrix, b, x, i_base, borders
+    add_messages :straight, "ВТОРАЯ СТАДИЯ", "Граничные условия #{borders}"
     n = 0
     success = false
     until success
