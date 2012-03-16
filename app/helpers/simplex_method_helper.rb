@@ -169,7 +169,7 @@ module SimplexMethodHelper
   end
 
   def choose_i0 deltas, borders, x
-    not_crit_opt = deltas.to_a.select{|delta| delta[0]>0 && x[delta[1]]==borders[delta[1]][0] || delta[0]<0 && x[delta[1]]==borders[delta[1]][1]}
+    not_crit_opt = deltas.to_a.select{|delta| delta[0]>0 && x[delta[1]]!=borders[delta[1]][1] || delta[0]<0 && x[delta[1]]!=borders[delta[1]][0]}
     add_messages :straight, "Не выполняется критерий оптимальности для  #{not_crit_opt}"
     not_crit_opt.max{|a,b| a[0].abs<=>b[0].abs}
     #not_crit_opt[0]
