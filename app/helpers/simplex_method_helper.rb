@@ -7,14 +7,27 @@ module SimplexMethodHelper
 
   def solve func, matrix, b, borders, x = nil
     init_logger
-    solve_straight func, matrix, b, borders, x
-    make_dual func, matrix, b, borders
+    begin
+      solve_straight func, matrix, b, borders, x
+    rescue => detail
+      add_messages :straight, detail.message
+    end
+    begin
+      make_dual func, matrix, b, borders
+    rescue => detail
+      add_messages :straight, detail.message
+    end
+    begin
+      solve_dual func, matrix, b, borders, x
+    rescue => detail
+      add_messages :straight, detail.message
+    end
   end
 
   def solve_straight func, matrix, b, borders, x = nil
     func, matrix, b,x = *init_input(func, matrix, b, borders, x)
-    x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders)
-    straight_simplex_method func, matrix, b, x, i_base, borders
+    x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders, :straight)
+    simplex_method_straight func, matrix, b, x, i_base, borders
   end
 
   def make_dual func, matrix, b, borders
@@ -29,11 +42,10 @@ module SimplexMethodHelper
     add_messages :make_dual, "#{func_dual} * #{y}' + #{border_high} * #{w}' - #{border_low} * #{v.to_a}' --> min", "#{matrix_dual.to_a} * #{y}' + #{w}'' - #{v}' = #{b_dual}'", "w, v >=0"
   end
 
-  #todo
   def solve_dual func, matrix, b, borders, x = nil
     func, matrix, b,x = *init_input(func, matrix, b, borders, x)
-    x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders)
-    dual_simplex_method  func, matrix, b, x, i_base, borders
+    x, i_base = *first_stage_simplex_method(func, matrix, b, x, borders, :dual)
+    simplex_method_dual  func, matrix, b, x, i_base, borders
   end
 
   private
@@ -51,12 +63,89 @@ module SimplexMethodHelper
     messages.each{|message|@messages[method_name] << message}
   end
 
-  #todo
-  def dual_simplex_method  func, matrix, b, x, i_base, borders
-
+  def simplex_method_dual func, matrix, b, x, i_base, borders
+    add_messages :dual, "ВТОРАЯ СТАДИЯ", "Граничные условия #{borders}"
+    n = 0
+    success = false
+    until success
+      add_messages :dual, "#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ", "Текущее х #{x.to_a}", "Базис #{i_base}"
+      x, i_base,success = *iterate_dual(b, i_base, matrix, func, borders)
+      add_messages :dual, "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
+      n += 1
+      raise "Слишком много итераций, просьба прислать этот пример." if n>=100
+    end
+    [x, i_base]
   end
 
-  def straight_simplex_method func, matrix, b, x, i_base, borders
+  def iterate_dual b, i_base, matrix, func, borders
+    matrix_base = matrix_base i_base, matrix
+    func_base = func_base i_base, func
+    i_not_base = (0...func.size).to_a-i_base
+    matrix_not_base = matrix_base i_not_base, matrix
+    u = matrix_base.transpose.inverse*func_base
+    deltas = i_not_base.map{|i| [delta(i, func, matrix, u),i]}
+    ae_not_base = make_ae_not_base deltas, borders
+    ae_base = make_ae_base b, matrix_base, matrix_not_base, ae_not_base, i_base
+    ae_not_opt = ae_not_opt ae_base, borders
+    add_messages :dual, "Базисная матрица #{matrix_base.to_a}", "Небазисные индексы #{i_not_base}", "Вектор потенциалов u #{u.to_a}", "Вектор оценок #{deltas}", "Небазисные компоненты псевдоплана ae #{ae_not_base}", "Базисные компоненты псевдоплана ae #{ae_base}", "Не выполняется критерий оптимальности для #{ae_not_opt}"
+    return [make_ae(ae_base, ae_not_base), i_base, true] if  ae_not_opt.empty?
+    ae_i0 = ae_i0 ae_not_opt, borders
+    l_base = l_base borders, ae_i0, ae_base, matrix_base
+    l_not_base = l_not_base matrix, l_base, deltas
+    psi_not_base = psi_not_base deltas, l_not_base
+    psi_0 = psi_not_base.min{|a,bb| a[0] <=> bb[0]}
+    if ae_i0[1] != psi_0[1]
+      i_base_new = (i_base - [ae_i0[1]] + [psi_0[1]]).sort
+    else
+      i_base_new = i_base
+    end
+    add_messages :dual, "ae_i0 #{ae_i0}", "Базисный вектор L (ly) #{l_base.to_a}", "Небазисный вектор L (lj) #{l_not_base}", "Шаги sigma #{psi_not_base}", "Sigma0 #{psi_0}", "ae (псевдоплан; он же х)#{make_ae(ae_base, ae_not_base)}", "Новый базис #{i_base_new}"
+    [make_ae(ae_base, ae_not_base), i_base_new, false]
+  end
+
+  def ae_i0 ae_not_opt, borders
+    ae_not_opt.max_by{|ae| ae[0] < borders[ae[1]][0]? (ae[0] - borders[ae[1]][0]).abs : (ae[0] - borders[ae[1]][1]).abs}
+  end
+
+  def ae_not_opt ae_base, borders
+    ae_base.select{|ae| borders[ae[1]][0] > ae[0] || ae[0]> borders[ae[1]][1]}
+  end
+
+  def l_not_base matrix, l_base, deltas
+    deltas.map{|delta| [(Matrix.row_vector(matrix.transpose.to_a[delta[1]])*Vector.elements(l_base))*(delta[0] <= 0 ? 1: -1), delta[1]]}.map{|i| [i[0][0], i[1]]}
+  end
+
+  def l_base borders, ae_i0, ae_base, matrix_base
+    b = [0]*ae_base.size
+    b[ae_base.find_index(ae_i0)] = ae_i0[0] <= borders[ae_i0[1]][0] ? 1 : -1
+    matrix_base.transpose.inverse*Vector.elements(b)
+  end
+
+  def psi_not_base deltas, l_not_base
+    psi_not_base = l_not_base.select{|l| l[0]<0}.map{|l| [((deltas.find{|delta| delta[1]==l[1]})[0]/l[0]).abs, l[1]] }
+    raise "Не имеет решения" if psi_not_base.empty?
+    psi_not_base
+  end
+
+  def make_ae_not_base deltas, borders
+    deltas.map do |delta|
+      if delta[0] >=0
+        [borders[delta[1]][1], delta[1]]
+      else
+        [borders[delta[1]][0], delta[1]]
+      end
+    end
+  end
+
+  def make_ae_base b, matrix_base, matrix_not_base, ae_not_base, i_base
+    (matrix_base.inverse*(Vector.elements(b) - matrix_not_base*Vector.elements(ae_not_base.map{|i| i[0]}))).to_a.each_with_index.map{|i,j| [i, i_base[j]]}
+  end
+
+  def make_ae ae_base, ae_not_base
+    (ae_not_base+ae_base).sort{|a,b| a[1] <=> b[1]}.map{|ae|ae[0]}
+  end
+
+  def simplex_method_straight func, matrix, b, x, i_base, borders
     add_messages :straight, "ВТОРАЯ СТАДИЯ", "Граничные условия #{borders}"
     n = 0
     success = false
@@ -65,6 +154,7 @@ module SimplexMethodHelper
       x, i_base,success = *iterate(x, i_base, matrix, func, borders)
       add_messages :straight, "Вектор х #{x.to_a} с базисом #{i_base} оптимален!" if  success
       n += 1
+      raise "Слишком много итераций, просьба прислать этот пример." if n>=100
     end
     [x, i_base]
   end
@@ -88,7 +178,7 @@ module SimplexMethodHelper
 
   def matrix_addition w
     iden = Matrix.identity(w.size).to_a
-    iden = Matrix.rows(iden.each_with_index.map do |i,j|
+    Matrix.rows(iden.each_with_index.map do |i,j|
       i[j] = w[j]>=0? 1: -1
       i
     end)
@@ -103,17 +193,18 @@ module SimplexMethodHelper
     Vector.elements(x.to_a + w.to_a)
   end
 
-  def first_stage_simplex_method func, matrix, b, x, borders
+  def first_stage_simplex_method func, matrix, b, x, borders, method_name
     x_first, matrix_first, func_first, borders_first = *first_stage_init_input(func, matrix, b, x, borders)
     pseudo = (x.size...x_first.size).to_a
     i_base = pseudo
-    add_messages :straight, "ПЕРВАЯ СТАДИЯ", "Граничные условия #{borders_first}"
+    add_messages method_name, "ПЕРВАЯ СТАДИЯ", "Граничные условия #{borders_first}"
     n = 0
     until pseudo_null? x_first, pseudo
-      add_messages :straight, "#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ", "Текущее значение х #{x_first.to_a}", "Базис #{i_base}"
+      add_messages method_name, "#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ", "Текущее значение х #{x_first.to_a}", "Базис #{i_base}"
       x_first, i_base,success = *iterate(x_first, i_base, matrix_first, func_first, borders_first)
-      add_messages :straight, "Вектор х #{x_first.to_a} с базисом #{i_base} оптимален!" if  success
+      add_messages method_name, "Вектор х #{x_first.to_a} с базисом #{i_base} оптимален!" if  success
       n+=1
+      raise "Слишком много итераций, просьба прислать этот пример." if n>=100
     end
     [Vector.elements(x_first[0...x.size]), i_base]
   end
@@ -147,7 +238,7 @@ module SimplexMethodHelper
   def direction delta_i0, i_not_base, i_base, matrix, matrix_base
     l = [0]*(i_not_base+i_base).size
     l[delta_i0[1]] = delta_i0[0] / delta_i0[0].abs
-    lb = (-l[delta_i0[1]]*(matrix_base.inverse*Vector.elements(matrix.transpose.to_a[delta_i0[1]]))).each_with_index{|i,j| l[i_base[j]] = i}
+    (-l[delta_i0[1]]*(matrix_base.inverse*Vector.elements(matrix.transpose.to_a[delta_i0[1]]))).each_with_index{|i,j| l[i_base[j]] = i}
     l
   end
 
