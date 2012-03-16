@@ -69,7 +69,7 @@ module SimplexMethodHelper
     success = false
     until success
       add_messages :dual, "#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ", "Текущее х #{x.to_a}", "Базис #{i_base}"
-      x, i_base,success = *iterate_dual(b, i_base, matrix, func, borders)
+      x, i_base,success = *iterate_dual(b, i_base, matrix, func, borders, :dual)
       add_messages :dual, "Вектор х #{x} с базисом #{i_base} оптимален!" if  success
       n += 1
       raise "Слишком много итераций, просьба прислать этот пример." if n>=100
@@ -77,7 +77,7 @@ module SimplexMethodHelper
     [x, i_base]
   end
 
-  def iterate_dual b, i_base, matrix, func, borders
+  def iterate_dual b, i_base, matrix, func, borders, method_name
     matrix_base = matrix_base i_base, matrix
     func_base = func_base i_base, func
     i_not_base = (0...func.size).to_a-i_base
@@ -87,7 +87,7 @@ module SimplexMethodHelper
     ae_not_base = make_ae_not_base deltas, borders
     ae_base = make_ae_base b, matrix_base, matrix_not_base, ae_not_base, i_base
     ae_not_opt = ae_not_opt ae_base, borders
-    add_messages :dual, "Базисная матрица #{matrix_base.to_a}", "Небазисные индексы #{i_not_base}", "Вектор потенциалов u #{u.to_a}", "Вектор оценок #{deltas}", "Небазисные компоненты псевдоплана ae #{ae_not_base}", "Базисные компоненты псевдоплана ae #{ae_base}", "Не выполняется критерий оптимальности для #{ae_not_opt}"
+    add_messages method_name, "Базисная матрица #{matrix_base.to_a}", "Небазисные индексы #{i_not_base}", "Вектор потенциалов u #{u.to_a}", "Вектор оценок #{deltas}", "Небазисные компоненты псевдоплана ae #{ae_not_base}", "Базисные компоненты псевдоплана ae #{ae_base}", "Не выполняется критерий оптимальности для #{ae_not_opt}"
     return [make_ae(ae_base, ae_not_base), i_base, true] if  ae_not_opt.empty?
     ae_i0 = ae_i0 ae_not_opt, borders
     l_base = l_base borders, ae_i0, ae_base, matrix_base
@@ -99,7 +99,7 @@ module SimplexMethodHelper
     else
       i_base_new = i_base
     end
-    add_messages :dual, "ae_i0 #{ae_i0}", "Базисный вектор L (ly) #{l_base.to_a}", "Небазисный вектор L (lj) #{l_not_base}", "Шаги sigma #{psi_not_base}", "Sigma0 #{psi_0}", "ae (псевдоплан; он же х)#{make_ae(ae_base, ae_not_base)}", "Новый базис #{i_base_new}"
+    add_messages method_name, "ae_i0 #{ae_i0}", "Базисный вектор L (ly) #{l_base.to_a}", "Небазисный вектор L (lj) #{l_not_base}", "Шаги sigma #{psi_not_base}", "Sigma0 #{psi_0}", "ae (псевдоплан; он же х)#{make_ae(ae_base, ae_not_base)}", "Новый базис #{i_base_new}"
     [make_ae(ae_base, ae_not_base), i_base_new, false]
   end
 
@@ -151,7 +151,7 @@ module SimplexMethodHelper
     success = false
     until success
       add_messages :straight, "#{n} ИТЕРАЦИЯ ВТОРОЙ СТАДИИ", "Текущее х #{x.to_a}", "Базис #{i_base}"
-      x, i_base,success = *iterate(x, i_base, matrix, func, borders)
+      x, i_base,success = *iterate(x, i_base, matrix, func, borders, :straight)
       add_messages :straight, "Вектор х #{x.to_a} с базисом #{i_base} оптимален!" if  success
       n += 1
       raise "Слишком много итераций, просьба прислать этот пример." if n>=100
@@ -201,7 +201,7 @@ module SimplexMethodHelper
     n = 0
     until pseudo_null? x_first, pseudo
       add_messages method_name, "#{n} ИТЕРАЦИЯ ПЕРВОЙ СТАДИИ", "Текущее значение х #{x_first.to_a}", "Базис #{i_base}"
-      x_first, i_base,success = *iterate(x_first, i_base, matrix_first, func_first, borders_first)
+      x_first, i_base,success = *iterate(x_first, i_base, matrix_first, func_first, borders_first, method_name)
       add_messages method_name, "Вектор х #{x_first.to_a} с базисом #{i_base} оптимален!" if  success
       n+=1
       raise "Слишком много итераций, просьба прислать этот пример." if n>=100
@@ -213,25 +213,25 @@ module SimplexMethodHelper
     pseudo.all?{|i| x[i] == 0}
   end
 
-  def iterate x, i_base, matrix, func, borders
+  def iterate x, i_base, matrix, func, borders, method_name
     matrix_base = matrix_base i_base, matrix
     func_base = func_base i_base, func
     u = matrix_base.transpose.inverse*func_base
     i_not_base = (0...func.size).to_a-i_base
     deltas = i_not_base.map{|i| [delta(i, func, matrix, u),i]}
-    add_messages :straight, "Базисная матрица #{matrix_base.to_a}", "Базисный целевой вектор #{func_base.to_a}", "Вектор u #{u.to_a}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}"
-    delta_i0 = choose_i0 deltas, borders, x
+    add_messages method_name, "Базисная матрица #{matrix_base.to_a}", "Базисный целевой вектор #{func_base.to_a}", "Вектор u #{u.to_a}", "Небазисные индексы #{i_not_base}", "Значения дельта #{deltas}"
+    delta_i0 = choose_i0 deltas, borders, x, method_name
     return [x,i_base,true] if delta_i0.nil?
     l = direction delta_i0, i_not_base, i_base, matrix, matrix_base
-    add_messages :straight, "Дельта i0 #{delta_i0}", "Вектор направления L #{l}"
-                 tetta0_index = step borders, l, delta_i0[1], x, i_base
+    add_messages method_name, "Дельта i0 #{delta_i0}", "Вектор направления L #{l}"
+                 tetta0_index = step borders, l, delta_i0[1], x, i_base, method_name
     x_new = x+tetta0_index[0]*Vector.elements(l)
     if tetta0_index[1] != delta_i0[1]
       i_base_new = (i_base - [tetta0_index[1]] + [delta_i0[1]]).sort
     else
       i_base_new = i_base
     end
-    add_messages :straight, "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new.to_a}", "Новый базис #{i_base_new}"
+    add_messages method_name, "Шаг Тетта0 #{tetta0_index}", "Новый вектор х #{x_new.to_a}", "Новый базис #{i_base_new}"
     [x_new, i_base_new, false]
   end
 
@@ -242,7 +242,7 @@ module SimplexMethodHelper
     l
   end
 
-  def step borders, l, i0, x, i_base
+  def step borders, l, i0, x, i_base, method_name
     fixnum_max = 2**(0.size * 8 -2) -1
     tetta_i0 = [borders[i0][1]-borders[i0][0],i0]
     tetta = l.each_with_index.map do |i, j|
@@ -255,13 +255,13 @@ module SimplexMethodHelper
       end
     end
     tetta[i0] =  tetta_i0
-    add_messages :straight, "Значения тетта #{tetta.select{|i| i[0]!= fixnum_max}}"
+    add_messages method_name, "Значения тетта #{tetta.select{|i| i[0]!= fixnum_max}}"
     tetta.min{|a,b| a[0] <=> b[0]}
   end
 
-  def choose_i0 deltas, borders, x
+  def choose_i0 deltas, borders, x, method_name
     not_crit_opt = deltas.to_a.select{|delta| delta[0]>0 && x[delta[1]]!=borders[delta[1]][1] || delta[0]<0 && x[delta[1]]!=borders[delta[1]][0]}
-    add_messages :straight, "Не выполняется критерий оптимальности для  #{not_crit_opt}"
+    add_messages method_name, "Не выполняется критерий оптимальности для  #{not_crit_opt}"
     not_crit_opt.max{|a,b| a[0].abs<=>b[0].abs}
     #not_crit_opt[0]
   end
