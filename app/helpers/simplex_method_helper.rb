@@ -256,7 +256,7 @@ module SimplexMethodHelper
     end
     tetta[i0] =  tetta_i0
     add_messages method_name, "Значения тетта #{tetta.select{|i| i[0]!= fixnum_max}}"
-    tetta.min{|a,b| a[0] <=> b[0]}
+    tetta.reverse.min{|a,b| a[0] <=> b[0]}
   end
 
   def choose_i0 deltas, borders, x, method_name
