@@ -5,7 +5,7 @@ class SimplexMethodController < ApplicationController
   include SimplexMethodHelper
 
   def index
-    @title = "Симплекс-метод"
+    @title = "Симплекс-метод (все индексы с нуля!!!)"
   end
 
   def get_messages
