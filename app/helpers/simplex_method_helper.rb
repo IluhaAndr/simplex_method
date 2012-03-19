@@ -18,7 +18,8 @@ module SimplexMethodHelper
       add_messages :straight, detail.message
     end
     begin
-      solve_dual func, matrix, b, borders, x
+      x, i_base = *solve_dual(func, matrix, b, borders, x)
+      sensitive_analysis func, matrix, b, x, i_base, borders
     rescue => detail
       add_messages :straight, detail.message
     end
@@ -48,7 +49,52 @@ module SimplexMethodHelper
     simplex_method_dual  func, matrix, b, x, i_base, borders
   end
 
+  def sensitive_analysis func, matrix, b, x, i_base, borders
+    matrix_base = matrix_base i_base, matrix
+    func_base = func_base i_base, func
+    i_not_base = (0...func.size).to_a-i_base
+    matrix_not_base = matrix_base i_not_base, matrix
+    u = matrix_base.transpose.inverse*func_base
+    db = vector_string("db", b.size)
+    add_messages :dual, "АНАЛИЗ ЧУВСТВИТЕЛЬНОСТИ", "ae небазисные: ", i_not_base.map{|i| "ae#{i} = #{x[i]}"}
+    koef_db = i_base.each_with_index.map{|i,j| [matrix_base.inverse.to_a[j], i]}
+    ae_base = i_base.each_with_index.map{|i,s| ["#{x[i]}#{koef_db[s][0].each_with_index.inject(""){|k, j| k+" + #{j[0]}*#{db[j[1]]}"}}", i]}
+    add_messages :dual, "ae базисные: ", ae_base.map{|ae| "ae#{ae[1]} = #{ae[0]}"}
+    add_messages :dual, *ae_base.map{|x| "#{borders[x[1]][0]} <= #{x[0]} <= #{borders[x[1]][1]}"}
+    borders_db = borders_db x, matrix_base.inverse, i_base, borders
+    add_messages :dual, "По очереди оставляем только один из коэффициентов и находим самые маленькие границы:"
+    add_messages :dual, *borders_db.each_with_index.map{|border, i| "#{border[0]} <= #{db[i]} <= #{border[1]}"}
+
+    add_messages :dual, *i_base.map{|i| "#{borders[i][0]} + dd_low_base#{i} <= #{x[i]}"}
+    dd_low_base = i_base.map{|i| [x[i] - borders[i][0], i]}
+    add_messages :dual, *dd_low_base.map{|i|"dd_low_base#{i[1]} <= #{i[0]}"}
+
+    add_messages :dual, i_base.map{|i| "#{x[i]} <= #{borders[i][1]} + dd_high_base#{i}"}
+    dd_high_base = *i_base.map{|i| [x[i] - borders[i][1], i]}
+    add_messages :dual, *dd_high_base.map{|i|"dd_high_base#{i[1]} >= #{i[0]}"}
+
+    add_messages :dual, *i_base.each_with_index.map{|i, j| "#{borders[i][0]} <= #{x[i]} #{i_not_base.each_with_index.inject(""){|k,l| k+" + #{((-1)*matrix_base.inverse*matrix_not_base).to_a[j][l[1]]}*dd_not_base#{l[0]}"}} <= #{borders[i][1]}"}
+    add_messages :dual, "По очереди оставляем только один из коэффициентов и находим самые маленькие границы:"
+    dd_not_base = borders_dd_not_base i_not_base,i_base, x, (-1)*matrix_base.inverse*matrix_not_base, borders
+    add_messages :dual, *dd_not_base.each_with_index.map{|border, i| "#{border[0]} <= dd_not_base_low#{i} <= #{border[1]}"}
+    add_messages :dual, *i_not_base.map{|i| "dd_not_base_high#{i} любая"}
+  end
+
   private
+
+  def borders_dd_not_base i_not_base, i_base, x, matr, borders
+    m_b = i_not_base.each_with_index.map{|i,j| matr.transpose.to_a[j].each_with_index.map{|l, m| [l, i_base[m]]}.select{|k| k[0]!=0}}
+    db_low = m_b.map{|str| str.map{|k| k[0] > 0? (borders[k[1]][0] - x[k[1]])/k[0] : (borders[k[1]][1] - x[k[1]])/k[0]}.max }
+    db_high = m_b.map{|str| str.map{|k| k[0] > 0? (borders[k[1]][1] - x[k[1]])/k[0] : (borders[k[1]][0] - x[k[1]])/k[0]}.min }
+    db_low.each_with_index.map{|db, i| db < db_high[i]? [db, db_high[i]] : [db_high[i], db]}
+  end
+
+  def borders_db x, matrix_base, i_base, borders
+    m_b = i_base.each_with_index.map{|i,j| matrix_base.transpose.to_a[j].each_with_index.map{|l, m| [l, i_base[m]]}.select{|k| k[0]!=0}}
+    db_low = m_b.map{|str| str.map{|k| k[0] > 0? (borders[k[1]][0] - x[k[1]])/k[0] : (borders[k[1]][1] - x[k[1]])/k[0]}.max }
+    db_high = m_b.map{|str| str.map{|k| k[0] > 0? (borders[k[1]][1] - x[k[1]])/k[0] : (borders[k[1]][0] - x[k[1]])/k[0]}.min }
+    db_low.each_with_index.map{|db, i| db < db_high[i]? [db, db_high[i]] : [db_high[i], db]}
+  end
 
   def vector_string sign, size
     (0...size).map{|i| "#{sign}#{i}"}
