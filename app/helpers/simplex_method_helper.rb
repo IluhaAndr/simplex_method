@@ -69,7 +69,7 @@ module SimplexMethodHelper
     dd_low_base = i_base.map{|i| [x[i] - borders[i][0], i]}
     add_messages :dual, *dd_low_base.map{|i|"dd_low_base#{i[1]} <= #{i[0]}"}
 
-    add_messages :dual, i_base.map{|i| "#{x[i]} <= #{borders[i][1]} + dd_high_base#{i}"}
+    add_messages :dual, *i_base.map{|i| "#{x[i]} <= #{borders[i][1]} + dd_high_base#{i}"}
     dd_high_base = *i_base.map{|i| [x[i] - borders[i][1], i]}
     add_messages :dual, *dd_high_base.map{|i|"dd_high_base#{i[1]} >= #{i[0]}"}
 
