@@ -54,12 +54,11 @@ module SimplexMethodHelper
     func_base = func_base i_base, func
     i_not_base = (0...func.size).to_a-i_base
     matrix_not_base = matrix_base i_not_base, matrix
-    u = matrix_base.transpose.inverse*func_base
     db = vector_string("db", b.size)
-    add_messages :dual, "АНАЛИЗ ЧУВСТВИТЕЛЬНОСТИ (без понятия, верный ли)", "ae небазисные: ", i_not_base.map{|i| "ae#{i} = #{x[i]}"}
+    add_messages :dual, "АНАЛИЗ ЧУВСТВИТЕЛЬНОСТИ (без понятия, верный ли)", "ae небазисные: ", *i_not_base.map{|i| "ae#{i} = #{x[i]}"}
     koef_db = i_base.each_with_index.map{|i,j| [matrix_base.inverse.to_a[j], i]}
     ae_base = i_base.each_with_index.map{|i,s| ["#{x[i]}#{koef_db[s][0].each_with_index.inject(""){|k, j| k+" + #{j[0]}*#{db[j[1]]}"}}", i]}
-    add_messages :dual, "ae базисные: ", ae_base.map{|ae| "ae#{ae[1]} = #{ae[0]}"}
+    add_messages :dual, "ae базисные: ", *ae_base.map{|ae| "ae#{ae[1]} = #{ae[0]}"}
     add_messages :dual, *ae_base.map{|x| "#{borders[x[1]][0]} <= #{x[0]} <= #{borders[x[1]][1]}"}
     borders_db = borders_db x, matrix_base.inverse, i_base, borders
     add_messages :dual, "По очереди оставляем только один из коэффициентов и находим самые маленькие границы:"
